@@ -10,16 +10,16 @@ import (
 	"unicode"
 )
 
-var DigitWords = []string{
-	"one",
-	"two",
-	"three",
-	"four",
-	"five",
-	"six",
-	"seven",
-	"eight",
-	"nine",
+var digitWords = map[string]string{
+	"one":   "1",
+	"two":   "2",
+	"three": "3",
+	"four":  "4",
+	"five":  "5",
+	"six":   "6",
+	"seven": "7",
+	"eight": "8",
+	"nine":  "9",
 }
 
 func main() {
@@ -37,17 +37,25 @@ func main() {
 		var line string = scanner.Text()
 		var arr []string
 		var sum int = 0
+		var currentWord string
 
-		for _, word := range DigitWords {
-			var wordToDigit string = convertDigitWordToStringNumber(word)
-			line = strings.Replace(line, word, wordToDigit, -1)
-		}
-		fmt.Println(line)
-
-		for _, r := range line {
+		for i, r := range line {
 			if unicode.IsDigit(r) {
 				arr = append(arr, string(r))
+				currentWord = ""
+			} else {
+				currentWord += string(r)
+				if digit, exists := digitWords[currentWord]; exists {
+					arr = append(arr, digit)
+					// Check if the next letter has the prefix of the currentWords last letter
+					if strings.HasPrefix(line[i+1], digitWords[]) {
+						currentWord = ""
+					} else {
+						currentWord = ""
+					}
+				}
 			}
+			fmt.Println(currentWord)
 		}
 
 		var arrLength int = len(arr)
@@ -63,6 +71,7 @@ func main() {
 			sum = digit
 		}
 		total += sum
+		fmt.Println(sum, line, arr)
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -70,29 +79,4 @@ func main() {
 	}
 
 	fmt.Println("The result is:", total)
-}
-
-func convertDigitWordToStringNumber(arg string) string {
-	var result string
-	switch arg {
-	case "one":
-		result = "1"
-	case "two":
-		result = "2"
-	case "three":
-		result = "3"
-	case "four":
-		result = "4"
-	case "five":
-		result = "5"
-	case "six":
-		result = "6"
-	case "seven":
-		result = "7"
-	case "eight":
-		result = "8"
-	case "nine":
-		result = "9"
-	}
-	return result
 }
