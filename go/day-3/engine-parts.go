@@ -6,10 +6,12 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"unicode"
 )
 
 func main() {
-	var gamesMap = map[string]bool{}
+	var prevLineSymbolsMap = map[int]rune{}
+	currentNumber := ""
 	result := 0
 	file := openFile()
 	scanner := bufio.NewScanner(file)
@@ -18,18 +20,46 @@ func main() {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		nextLine()
 
-		for _, r := range line {
+		for lineIndex, r := range line {
+			if unicode.IsSymbol(r) || r == '*' || r == '#' {
+				prevLineSymbolsMap[lineIndex] = r
+				fmt.Println(unicode.IsPunct(r), string(r), currentNumber)
+				if lineIndex > 0 {
+					var prevIndexValue rune = rune(line[lineIndex-1])
+					if unicode.IsDigit(rune(prevIndexValue)) {
+						digit, err := strconv.Atoi(currentNumber)
+						if err != nil {
+							fmt.Println(err)
+						}
 
-		}
-	}
+						result += digit
+					}
+				}
+				if lineIndex < len(line)-1 {
+					var nextIndexValue rune = rune(line[lineIndex+1])
+					if unicode.IsDigit(rune(nextIndexValue)) {
+						slice := []rune(line)[:lineIndex]
+						for _, r := range slice {
+							if !unicode.IsDigit(r) {
+								digit, err := strconv.Atoi(currentNumber)
+								if err != nil {
+									fmt.Println(err)
+								}
+								result += digit
+								break
+							}
+							currentNumber = currentNumber + string(r)
+						}
+					}
+				}
 
-	for key, value := range gamesMap {
-		if value {
-			fmt.Println("", key)
-			if digit, err := strconv.Atoi(key); err == nil {
-				result += digit
+			}
+
+			if unicode.IsDigit(r) {
+				currentNumber = currentNumber + string(r)
+			} else {
+				currentNumber = ""
 			}
 		}
 	}
@@ -37,17 +67,11 @@ func main() {
 }
 
 func openFile() *os.File {
-	file, err := os.Open("input.txt")
+	file, err := os.Open("sample.txt")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	return file
-}
-
-{
-	[lineId]: {
-		[index]: number
-	}
 }
